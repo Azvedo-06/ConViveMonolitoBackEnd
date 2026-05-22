@@ -9,7 +9,7 @@
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
