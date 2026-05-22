@@ -8,6 +8,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AdminModule } from './admin/admin.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
+import { EventsModule } from './events/events.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -29,6 +30,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     AdminModule,
     UsersModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [

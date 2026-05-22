@@ -1,0 +1,76 @@
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  ForeignKey,
+} from 'sequelize-typescript';
+
+import { User } from '../../users/entity/user.model';
+import { EventType } from '../enums/event-type.enum';
+import type {
+  CreationOptional,
+  InferAttributes,
+  InferCreationAttributes,
+} from 'sequelize';
+
+@Table({
+  tableName: 'events',
+  underscored: true,
+  timestamps: true,
+})
+export class Event extends Model<
+  InferAttributes<Event>,
+  InferCreationAttributes<Event>
+> {
+  @Column({
+    type: DataType.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  })
+  declare id: CreationOptional<number>;
+  @Column({
+    allowNull: false,
+  })
+  declare title: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.TEXT,
+  })
+  declare description: string;
+
+  @Column({
+    allowNull: false,
+  })
+  declare location: string;
+
+  @Column({
+    allowNull: false,
+  })
+  declare date: Date;
+
+  @Column({
+    type: DataType.ENUM('COMMUNITY', 'PRIVATE'),
+    defaultValue: 'COMMUNITY',
+  })
+  declare type: EventType;
+
+  @Column({
+    type: DataType.FLOAT,
+    allowNull: true,
+  })
+  declare price: CreationOptional<number>;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare maxParticipants: CreationOptional<number>;
+
+  @ForeignKey(() => User)
+  @Column({
+    allowNull: false,
+  })
+  declare createdBy: number;
+}
