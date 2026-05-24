@@ -19,25 +19,28 @@ export class EventsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(
-    @Body() createEventDto: CreateEventDto,
-    @Req() req,
-  ) {
-    return this.eventsService.create(
-      createEventDto,
-      req.user.userId,
-    );
+  create(@Body() createEventDto: CreateEventDto, @Req() req) {
+    return this.eventsService.create(createEventDto, req.user.userId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/join')
+  joinEvent(@Param('id', ParseIntPipe) id: number, @Req() req) {
+    return this.eventsService.joinEvent(id, req.user.userId);
+  }
+
+  @Get(':id/participants')
+  getParticipants(@Param('id', ParseIntPipe) id: number) {
+    return this.eventsService.getParticipants(id);
+  } 
+  
   @Get()
   findAll() {
     return this.eventsService.findAll();
   }
 
   @Get(':id')
-  findOne(
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.eventsService.findOne(id);
   }
 }

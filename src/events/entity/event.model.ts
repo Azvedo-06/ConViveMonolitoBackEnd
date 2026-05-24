@@ -4,15 +4,19 @@ import {
   Model,
   DataType,
   ForeignKey,
+  BelongsToMany,
 } from 'sequelize-typescript';
 
 import { User } from '../../users/entity/user.model';
 import { EventType } from '../enums/event-type.enum';
+
 import type {
   CreationOptional,
   InferAttributes,
   InferCreationAttributes,
 } from 'sequelize';
+
+import { EventParticipant } from './event-participant.model';
 
 @Table({
   tableName: 'events',
@@ -73,4 +77,7 @@ export class Event extends Model<
     allowNull: false,
   })
   declare createdBy: number;
+
+  @BelongsToMany(() => User, () => EventParticipant)
+  declare participants?: User[];
 }

@@ -1,5 +1,7 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, BelongsToMany } from 'sequelize-typescript';
 import { Role } from '../../auth/enums/role.enum';
+import { EventParticipant } from 'src/events/entity/event-participant.model';
+import { Event } from 'src/events/entity/event.model';
 
 export interface UserAttributes {
   id: number;
@@ -11,8 +13,7 @@ export interface UserAttributes {
   role: Role;
 }
 
-export interface UserCreationAttributes
-  extends Omit<UserAttributes, 'id'> {}
+export interface UserCreationAttributes extends Omit<UserAttributes, 'id'> {}
 
 @Table({
   tableName: 'users',
@@ -64,4 +65,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
     defaultValue: Role.USER,
   })
   declare role: Role;
+
+  @BelongsToMany(() => Event, () => EventParticipant)
+  declare events?: Event[];
 }
