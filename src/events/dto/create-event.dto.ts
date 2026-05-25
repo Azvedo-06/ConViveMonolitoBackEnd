@@ -4,8 +4,9 @@ import {
   IsEnum,
   IsOptional,
   IsNumber,
+  ValidateIf,
+  IsPositive,
 } from 'class-validator';
-
 import { EventType } from '../enums/event-type.enum';
 
 export class CreateEventDto {
@@ -24,11 +25,13 @@ export class CreateEventDto {
   @IsEnum(EventType)
   type!: EventType;
 
-  @IsOptional()
+  @ValidateIf((o) => o.type === 'PRIVATE')
   @IsNumber()
+  @IsPositive()
   price?: number;
 
-  @IsOptional()
+  @ValidateIf((o) => o.type === 'PRIVATE')
   @IsNumber()
+  @IsPositive()
   maxParticipants?: number;
 }

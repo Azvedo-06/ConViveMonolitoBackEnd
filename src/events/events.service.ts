@@ -28,7 +28,13 @@ export class EventsService {
   }
 
   async findAll() {
-    return this.eventModel.findAll();
+    return this.eventModel.findAll(
+      {
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        } 
+      }
+    );
   }
 
   async findOne(id: number) {
@@ -40,6 +46,16 @@ export class EventsService {
 
     if (!event) {
       throw new NotFoundException('Evento não encontrado');
+    }
+
+    const participantsCount = await this.participantModel.count({
+      where: {
+        eventId,
+      },
+    });
+
+    if (event.maxParticipants && participantsCount >= event.maxParticipants) {
+      throw new BadRequestException('Evento lotado');
     }
 
     const alreadyParticipant = await this.participantModel.findOne({
