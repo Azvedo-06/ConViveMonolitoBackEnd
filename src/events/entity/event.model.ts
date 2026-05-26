@@ -80,4 +80,10 @@ export class Event extends Model<
 
   @BelongsToMany(() => User, () => EventParticipant)
   declare participants?: User[];
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  declare imageUrl: CreationOptional<string>;
 }

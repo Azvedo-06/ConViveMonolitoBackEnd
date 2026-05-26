@@ -21,6 +21,25 @@ export class EventsService {
   ) {}
 
   async create(createEventDto: CreateEventDto, userId: number) {
+    const eventDate = new Date(createEventDto.date);
+
+    if (eventDate < new Date()) {
+      throw new BadRequestException('Não é possível criar eventos no passado');
+    }
+
+    const existingEvent = await this.eventModel.findOne({
+      where: {
+        location: createEventDto.location,
+        date: createEventDto.date,
+      },
+    });
+
+    if (existingEvent) {
+      throw new BadRequestException(
+        'Já existe um evento neste local nesta data e horário',
+      );
+    }
+
     return this.eventModel.create({
       ...createEventDto,
       createdBy: userId,
@@ -28,13 +47,11 @@ export class EventsService {
   }
 
   async findAll() {
-    return this.eventModel.findAll(
-      {
-        attributes: {
-          exclude: ['createdAt', 'updatedAt']
-        } 
-      }
-    );
+    return this.eventModel.findAll({
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
+    });
   }
 
   async findOne(id: number) {
@@ -94,5 +111,22 @@ export class EventsService {
     }
 
     return event.participants;
+  }
+
+  async uploadImage(eventId: number, filename: string): Promise<any> {
+    const event = await this.eventModel.findByPk(eventId);
+
+    if (!event) {
+      throw new NotFoundException('Evento não encontrado');
+    }
+
+    event.imageUrl = `/uploads/${filename}`;
+
+    await event.save();
+
+    return {
+      message: 'Imagem enviada com sucesso',
+      imageUrl: event.imageUrl,
+    };
   }
 }
