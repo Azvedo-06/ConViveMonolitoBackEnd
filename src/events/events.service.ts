@@ -40,10 +40,15 @@ export class EventsService {
       );
     }
 
-    return this.eventModel.create({
+    const event = await this.eventModel.create({
       ...createEventDto,
       createdBy: userId,
     });
+
+    return {
+      message: 'Evento criado com sucesso',
+      data: event,
+    };
   }
 
   async findAll() {
@@ -86,10 +91,14 @@ export class EventsService {
       throw new BadRequestException('Usuário já participa deste evento');
     }
 
-    return this.participantModel.create({
+    const participation = await this.participantModel.create({
       eventId,
       userId,
     });
+    return {
+      message: 'Participação realizada com sucesso',
+      data: participation,
+    };
   }
 
   async getParticipants(eventId: number) {
