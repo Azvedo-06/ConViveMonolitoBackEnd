@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { Event } from './entity/event.model';
 import { CreateEventDto } from './dto/create-event.dto';
 import { EventParticipant } from './entity/event-participant.model';
 import { User } from 'src/users/entity/user.model';
+import { Role } from '../auth/enums/role.enum';
 
 @Injectable()
 export class EventsService {
@@ -51,16 +53,79 @@ export class EventsService {
     };
   }
 
-  async findAll() {
+  async findAll(city?: string) {
+    const whereClause = city ? { city } : {};
     return this.eventModel.findAll({
+      where: whereClause,
       attributes: {
         exclude: ['createdAt', 'updatedAt'],
       },
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'name', 'email', 'phone'],
+        },
+      ],
     });
   }
 
   async findOne(id: number) {
-    return this.eventModel.findByPk(id);
+    return this.eventModel.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'name', 'email', 'phone'],
+        },
+      ],
+    });
+  }
+
+  async update(id: number, updateEventDto: any, userId: number, userRole: Role) {
+    const event = await this.eventModel.findByPk(id);
+    if (!event) {
+      throw new NotFoundException('Evento não encontrado');
+    }
+
+    if (userRole !== Role.ADMIN && event.createdBy !== userId) {
+      throw new ForbiddenException(
+        'Você não tem permissão para editar este evento',
+      );
+    }
+
+    if (updateEventDto.date) {
+      const eventDate = new Date(updateEventDto.date);
+      if (eventDate < new Date()) {
+        throw new BadRequestException(
+          'Não é possível definir a data do evento no passado',
+        );
+      }
+    }
+
+    await event.update(updateEventDto);
+    return {
+      message: 'Evento atualizado com sucesso',
+      data: event,
+    };
+  }
+
+  async remove(id: number, userId: number, userRole: Role) {
+    const event = await this.eventModel.findByPk(id);
+    if (!event) {
+      throw new NotFoundException('Evento não encontrado');
+    }
+
+    if (userRole !== Role.ADMIN && event.createdBy !== userId) {
+      throw new ForbiddenException(
+        'Você não tem permissão para excluir este evento',
+      );
+    }
+
+    await event.destroy();
+    return {
+      message: 'Evento excluído com sucesso',
+    };
   }
 
   async joinEvent(eventId: number, userId: number) {

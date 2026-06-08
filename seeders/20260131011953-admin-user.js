@@ -1,5 +1,5 @@
 'use strict';
-import * as bcrypt from 'bcrypt';
+const bcrypt = require('bcrypt');
 // seeder para criar um usuário admin se ele não existir
 module.exports = {
   async up (queryInterface) {

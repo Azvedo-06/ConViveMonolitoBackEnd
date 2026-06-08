@@ -25,6 +25,13 @@ export class CreateEventDto {
   @IsEnum(EventType)
   type!: EventType;
 
+  @IsString()
+  @IsOptional()
+  category?: string;
+
+  @IsString()
+  city!: string;
+
   @ValidateIf((o) => o.type === 'PRIVATE')
   @IsNumber()
   @IsPositive()

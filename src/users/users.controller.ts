@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Patch, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/createUser.dto';
+import { UpdateUserDto } from './dto/updateUser.dto';
 import { toUserResponse } from './mappers/userMapper';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -23,6 +24,12 @@ export class UsersController {
         const user = await this.usersService.findById(req.user.userId);
         return toUserResponse(user); // Mapear o usuário para UserResponseDto
     } 
+
+    @Patch('me')
+    async updateMe(@Req() req, @Body() dto: UpdateUserDto) {
+        const user = await this.usersService.update(req.user.userId, dto);
+        return toUserResponse(user);
+    }
 
     @Get()
     @UseGuards(JwtAuthGuard, RolesGuard)

@@ -4,6 +4,7 @@ import {
   Model,
   DataType,
   ForeignKey,
+  BelongsTo,
   BelongsToMany,
 } from 'sequelize-typescript';
 
@@ -77,6 +78,23 @@ export class Event extends Model<
     allowNull: false,
   })
   declare createdBy: number;
+
+  @BelongsTo(() => User, 'createdBy')
+  creator?: User;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    defaultValue: 'eventos',
+  })
+  category!: CreationOptional<string>;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    defaultValue: 'campo-mourao',
+  })
+  city!: CreationOptional<string>;
 
   @BelongsToMany(() => User, () => EventParticipant)
   declare participants?: User[];

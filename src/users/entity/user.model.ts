@@ -61,7 +61,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
   declare password: string;
 
   @Column({
-    type: DataType.ENUM('ADMIN', 'USER'),
+    type: DataType.ENUM('ADMIN', 'USER', 'ORGANIZER'),
     defaultValue: Role.USER,
   })
   declare role: Role;
