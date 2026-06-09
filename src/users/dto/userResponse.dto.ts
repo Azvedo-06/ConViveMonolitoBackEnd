@@ -7,5 +7,8 @@ export class UserResponseDto {
   phone!: string;
   email!: string;
   role!: Role;
+  linkedin?: string;
+  instagram?: string;
+  youtube?: string;
   createdAt!: Date;
 }

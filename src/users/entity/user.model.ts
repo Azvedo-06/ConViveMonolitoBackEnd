@@ -11,6 +11,9 @@ export interface UserAttributes {
   email: string;
   password: string;
   role: Role;
+  linkedin?: string;
+  instagram?: string;
+  youtube?: string;
 }
 
 export interface UserCreationAttributes extends Omit<UserAttributes, 'id'> {}
@@ -65,6 +68,24 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
     defaultValue: Role.USER,
   })
   declare role: Role;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  declare linkedin?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  declare instagram?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  declare youtube?: string;
 
   @BelongsToMany(() => Event, () => EventParticipant)
   declare events?: Event[];

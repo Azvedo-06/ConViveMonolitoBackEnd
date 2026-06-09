@@ -9,6 +9,9 @@ export function toUserResponse(user: User): UserResponseDto {
     phone: user.phone,
     email: user.email,
     role: user.role,
+    linkedin: user.linkedin,
+    instagram: user.instagram,
+    youtube: user.youtube,
     createdAt: user.createdAt,
   };
 }

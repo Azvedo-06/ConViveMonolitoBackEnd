@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import { EventsModule } from './events/events.module';
+import { CitiesModule } from './cities/cities.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,6 +32,7 @@ import { EventsModule } from './events/events.module';
     AdminModule,
     UsersModule,
     EventsModule,
+    CitiesModule,
   ],
   controllers: [AppController],
   providers: [

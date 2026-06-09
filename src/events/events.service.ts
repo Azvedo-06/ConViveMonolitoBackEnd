@@ -64,7 +64,7 @@ export class EventsService {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'name', 'email', 'phone'],
+          attributes: ['id', 'name', 'email', 'phone', 'linkedin', 'instagram', 'youtube'],
         },
       ],
     });
@@ -76,7 +76,7 @@ export class EventsService {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'name', 'email', 'phone'],
+          attributes: ['id', 'name', 'email', 'phone', 'linkedin', 'instagram', 'youtube'],
         },
       ],
     });
@@ -201,6 +201,47 @@ export class EventsService {
     return {
       message: 'Imagem enviada com sucesso',
       imageUrl: event.imageUrl,
+    };
+  }
+
+  async findUserEvents(userId: number) {
+    const created = await this.eventModel.findAll({
+      where: { createdBy: userId },
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'name', 'email', 'phone', 'linkedin', 'instagram', 'youtube'],
+        },
+      ],
+    });
+
+    const joined = await this.eventModel.findAll({
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'name', 'email', 'phone', 'linkedin', 'instagram', 'youtube'],
+        },
+        {
+          model: User,
+          as: 'participants',
+          where: { id: userId },
+          attributes: [],
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    return {
+      created,
+      joined,
     };
   }
 }

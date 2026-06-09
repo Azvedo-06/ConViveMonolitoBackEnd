@@ -75,6 +75,12 @@ export class EventsController {
     return this.eventsService.findAll(city);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('my-events')
+  findMyEvents(@Req() req) {
+    return this.eventsService.findUserEvents(req.user.userId);
+  }
+
   @Public()
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
