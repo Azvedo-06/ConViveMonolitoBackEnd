@@ -2,7 +2,7 @@ import {
   IsEmail,
   IsOptional,
   IsString,
-  MinLength,
+  Matches,
 } from 'class-validator';
 
 export class UpdateUserDto {
@@ -12,6 +12,7 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
+  @Matches(/^\d{10,11}$/, { message: 'O telefone deve conter 10 ou 11 dígitos numéricos (apenas números, incluindo o DDD).' })
   phone?: string;
 
   @IsOptional()
@@ -20,7 +21,9 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  @MinLength(6)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    message: 'A senha deve conter no mínimo 8 caracteres, com pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.',
+  })
   password?: string;
 
   @IsOptional()
