@@ -3,17 +3,19 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 
 import { Event } from './entity/event.model';
 import { CreateEventDto } from './dto/create-event.dto';
 import { EventParticipant } from './entity/event-participant.model';
-import { User } from 'src/users/entity/user.model';
+import { User } from '../users/entity/user.model';
 import { Role } from '../auth/enums/role.enum';
 
 @Injectable()
 export class EventsService {
+  private readonly logger = new Logger(EventsService.name);
   constructor(
     @InjectModel(Event)
     private readonly eventModel: typeof Event,
@@ -47,6 +49,8 @@ export class EventsService {
       createdBy: userId,
     });
 
+    this.logger.log(`Evento criado: ${event.title} (ID: ${event.id})`);
+
     return {
       message: 'Evento criado com sucesso',
       data: event,
@@ -55,6 +59,9 @@ export class EventsService {
 
   async findAll(city?: string) {
     const whereClause = city ? { city } : {};
+
+    this.logger.log(`Buscando eventos${city ? ` na cidade de ${city}` : ''}`);
+
     return this.eventModel.findAll({
       where: whereClause,
       attributes: {
@@ -64,7 +71,15 @@ export class EventsService {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'name', 'email', 'phone', 'linkedin', 'instagram', 'youtube'],
+          attributes: [
+            'id',
+            'name',
+            'email',
+            'phone',
+            'linkedin',
+            'instagram',
+            'youtube',
+          ],
         },
       ],
     });
@@ -76,13 +91,26 @@ export class EventsService {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'name', 'email', 'phone', 'linkedin', 'instagram', 'youtube'],
+          attributes: [
+            'id',
+            'name',
+            'email',
+            'phone',
+            'linkedin',
+            'instagram',
+            'youtube',
+          ],
         },
       ],
     });
   }
 
-  async update(id: number, updateEventDto: any, userId: number, userRole: Role) {
+  async update(
+    id: number,
+    updateEventDto: any,
+    userId: number,
+    userRole: Role,
+  ) {
     const event = await this.eventModel.findByPk(id);
     if (!event) {
       throw new NotFoundException('Evento não encontrado');
@@ -104,6 +132,9 @@ export class EventsService {
     }
 
     await event.update(updateEventDto);
+
+    this.logger.log(`Evento atualizado: ${event.title} (ID: ${event.id})`);
+
     return {
       message: 'Evento atualizado com sucesso',
       data: event,
@@ -123,6 +154,9 @@ export class EventsService {
     }
 
     await event.destroy();
+
+    this.logger.log(`Evento excluído: ${event.title} (ID: ${event.id})`);
+
     return {
       message: 'Evento excluído com sucesso',
     };
@@ -153,6 +187,10 @@ export class EventsService {
     });
 
     if (alreadyParticipant) {
+      this.logger.warn(
+        `Usuário ${userId} tentou entrar novamente no evento ${eventId}`,
+      );
+
       throw new BadRequestException('Usuário já participa deste evento');
     }
 
@@ -160,6 +198,9 @@ export class EventsService {
       eventId,
       userId,
     });
+
+    this.logger.log(`Usuário ${userId} entrou no evento ${eventId}`);
+
     return {
       message: 'Participação realizada com sucesso',
       data: participation,
@@ -214,7 +255,15 @@ export class EventsService {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'name', 'email', 'phone', 'linkedin', 'instagram', 'youtube'],
+          attributes: [
+            'id',
+            'name',
+            'email',
+            'phone',
+            'linkedin',
+            'instagram',
+            'youtube',
+          ],
         },
       ],
     });
@@ -227,7 +276,15 @@ export class EventsService {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'name', 'email', 'phone', 'linkedin', 'instagram', 'youtube'],
+          attributes: [
+            'id',
+            'name',
+            'email',
+            'phone',
+            'linkedin',
+            'instagram',
+            'youtube',
+          ],
         },
         {
           model: User,
@@ -238,6 +295,8 @@ export class EventsService {
         },
       ],
     });
+
+    this.logger.log(`Usuário ${userId} tem ${created.length} eventos criados e ${joined.length} eventos participando`);
 
     return {
       created,

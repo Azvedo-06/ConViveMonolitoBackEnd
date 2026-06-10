@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType, BelongsToMany } from 'sequelize-typescript';
 import { Role } from '../../auth/enums/role.enum';
-import { EventParticipant } from 'src/events/entity/event-participant.model';
-import { Event } from 'src/events/entity/event.model';
+import { EventParticipant } from '../../events/entity/event-participant.model';
+import { Event } from '../../events/entity/event.model';
 
 export interface UserAttributes {
   id: number;

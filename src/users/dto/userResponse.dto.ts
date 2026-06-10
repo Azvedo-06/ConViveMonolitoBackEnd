@@ -1,4 +1,4 @@
-import { Role } from 'src/auth/enums/role.enum';
+import { Role } from '../../auth/enums/role.enum';
 // DTO para representar a resposta do usuário
 export class UserResponseDto {
   id!: string;
