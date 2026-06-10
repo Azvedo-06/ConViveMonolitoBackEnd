@@ -10,6 +10,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Event } from './entity/event.model';
 import { CreateEventDto } from './dto/create-event.dto';
 import { EventParticipant } from './entity/event-participant.model';
+import { ChatMessage } from './entity/chat-message.model';
 import { User } from '../users/entity/user.model';
 import { Role } from '../auth/enums/role.enum';
 
@@ -22,6 +23,9 @@ export class EventsService {
 
     @InjectModel(EventParticipant)
     private readonly participantModel: typeof EventParticipant,
+
+    @InjectModel(ChatMessage)
+    private readonly chatMessageModel: typeof ChatMessage,
   ) {}
 
   async create(createEventDto: CreateEventDto, userId: number) {
@@ -303,4 +307,84 @@ export class EventsService {
       joined,
     };
   }
+
+  async getMessagesForEvent(eventId: number, userId: number, userRole: Role) {
+    const event = await this.eventModel.findByPk(eventId);
+    if (!event) {
+      throw new NotFoundException('Evento não encontrado');
+    }
+
+    const isCreator = event.createdBy === userId;
+    const isAdmin = userRole === Role.ADMIN;
+    let isParticipant = false;
+
+    if (!isCreator && !isAdmin) {
+      const participant = await this.participantModel.findOne({
+        where: { eventId, userId },
+      });
+      isParticipant = !!participant;
+    }
+
+    if (!isCreator && !isAdmin && !isParticipant) {
+      throw new ForbiddenException(
+        'Você precisa participar do evento para ver as mensagens.',
+      );
+    }
+
+    return this.chatMessageModel.findAll({
+      where: { eventId },
+      order: [['createdAt', 'ASC']],
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'name', 'email', 'role', 'phone', 'linkedin', 'instagram', 'youtube'],
+        },
+      ],
+    });
+  }
+
+  async sendMessageToEvent(
+    eventId: number,
+    userId: number,
+    userRole: Role,
+    messageContent: string,
+  ) {
+    const event = await this.eventModel.findByPk(eventId);
+    if (!event) {
+      throw new NotFoundException('Evento não encontrado');
+    }
+
+    const isCreator = event.createdBy === userId;
+    const isAdmin = userRole === Role.ADMIN;
+    let isParticipant = false;
+
+    if (!isCreator && !isAdmin) {
+      const participant = await this.participantModel.findOne({
+        where: { eventId, userId },
+      });
+      isParticipant = !!participant;
+    }
+
+    if (!isCreator && !isAdmin && !isParticipant) {
+      throw new ForbiddenException(
+        'Você precisa participar do evento para enviar mensagens.',
+      );
+    }
+
+    const message = await this.chatMessageModel.create({
+      eventId,
+      userId,
+      message: messageContent,
+    });
+
+    return this.chatMessageModel.findByPk(message.id, {
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'name', 'email', 'role', 'phone', 'linkedin', 'instagram', 'youtube'],
+        },
+      ],
+    });
+  }
 }
+

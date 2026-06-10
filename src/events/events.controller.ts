@@ -16,6 +16,7 @@ import {
 
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
+import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from '../auth/decorators/public.decorator';
@@ -99,5 +100,26 @@ export class EventsController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.eventsService.uploadImage(id, file.filename);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/messages')
+  getMessages(@Param('id', ParseIntPipe) id: number, @Req() req) {
+    return this.eventsService.getMessagesForEvent(id, req.user.userId, req.user.role);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/messages')
+  sendMessage(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() createChatMessageDto: CreateChatMessageDto,
+    @Req() req,
+  ) {
+    return this.eventsService.sendMessageToEvent(
+      id,
+      req.user.userId,
+      req.user.role,
+      createChatMessageDto.message,
+    );
   }
 }
