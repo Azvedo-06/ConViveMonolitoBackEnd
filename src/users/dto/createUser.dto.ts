@@ -4,15 +4,15 @@ import {
   IsOptional,
   IsString,
   Matches,
+  Validate
 } from 'class-validator';
+import { CpfValidator } from '../utility/cpf.validator';
 import { Role } from '../../auth/enums/role.enum';
-
 export class CreateUserDto {
   @IsString()
   name!: string;
 
-  @IsString()
-  @Matches(/^\d{11}$/, { message: 'O CPF deve conter exatamente 11 dígitos numéricos.' })
+  @Validate(CpfValidator)
   cpf!: string;
 
   @IsString()
