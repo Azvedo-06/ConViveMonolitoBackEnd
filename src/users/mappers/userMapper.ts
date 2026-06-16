@@ -12,6 +12,8 @@ export function toUserResponse(user: User): UserResponseDto {
     linkedin: user.linkedin,
     instagram: user.instagram,
     youtube: user.youtube,
+    cnpj: user.cnpj,
+    cep: user.cep,
     createdAt: user.createdAt,
   };
 }

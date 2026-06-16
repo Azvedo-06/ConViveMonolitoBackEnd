@@ -14,6 +14,8 @@ export interface UserAttributes {
   linkedin?: string;
   instagram?: string;
   youtube?: string;
+  cnpj?: string;
+  cep?: string;
 }
 
 export interface UserCreationAttributes extends Omit<UserAttributes, 'id'> {}
@@ -43,6 +45,19 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
     unique: true,
   })
   declare cpf: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    unique: true,
+  })
+  declare cnpj?: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  declare cep?: string;
 
   @Column({
     type: DataType.STRING,

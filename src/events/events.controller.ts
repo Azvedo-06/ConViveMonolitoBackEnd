@@ -24,9 +24,14 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enums/role.enum';
 
+import { EventsGateway } from './events.gateway';
+
 @Controller('events')
 export class EventsController {
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(
+    private readonly eventsService: EventsService,
+    private readonly eventsGateway: EventsGateway,
+  ) {}
 
   @UseGuards(RolesGuard)
   @Roles(Role.ORGANIZER, Role.ADMIN)
@@ -110,16 +115,18 @@ export class EventsController {
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/messages')
-  sendMessage(
+  async sendMessage(
     @Param('id', ParseIntPipe) id: number,
     @Body() createChatMessageDto: CreateChatMessageDto,
     @Req() req,
   ) {
-    return this.eventsService.sendMessageToEvent(
+    const message = await this.eventsService.sendMessageToEvent(
       id,
       req.user.userId,
       req.user.role,
       createChatMessageDto.message,
     );
+    this.eventsGateway.server.to(`event_${id}`).emit('newMessage', message);
+    return message;
   }
 }

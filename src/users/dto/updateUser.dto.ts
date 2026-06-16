@@ -3,12 +3,23 @@ import {
   IsOptional,
   IsString,
   Matches,
+  Validate,
 } from 'class-validator';
+import { CnpjValidator } from '../utility/cnpj.validator';
 
 export class UpdateUserDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @IsOptional()
+  @Validate(CnpjValidator)
+  cnpj?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{8}$/, { message: 'O CEP deve conter 8 dígitos numéricos.' })
+  cep?: string;
 
   @IsOptional()
   @IsString()

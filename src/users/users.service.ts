@@ -31,6 +31,8 @@ export class UsersService {
     return this.userModel.create({
       name: dto.name,
       cpf: dto.cpf,
+      cnpj: dto.cnpj,
+      cep: dto.cep,
       phone: dto.phone,
       email: dto.email,
       password: passwordHash,

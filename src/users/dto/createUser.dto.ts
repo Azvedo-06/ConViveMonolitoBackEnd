@@ -7,6 +7,7 @@ import {
   Validate
 } from 'class-validator';
 import { CpfValidator } from '../utility/cpf.validator';
+import { CnpjValidator } from '../utility/cnpj.validator';
 import { Role } from '../../auth/enums/role.enum';
 export class CreateUserDto {
   @IsString()
@@ -14,6 +15,15 @@ export class CreateUserDto {
 
   @Validate(CpfValidator)
   cpf!: string;
+
+  @IsOptional()
+  @Validate(CnpjValidator)
+  cnpj?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{8}$/, { message: 'O CEP deve conter 8 dígitos numéricos.' })
+  cep?: string;
 
   @IsString()
   @Matches(/^\d{10,11}$/, { message: 'O telefone deve conter 10 ou 11 dígitos numéricos (apenas números, incluindo o DDD).' })

@@ -76,6 +76,21 @@ Motivo
 
 - Melhora organização do código e separa responsabilidades e testabilidade.
 
+## Princípios do SOLID Aplicados
+
+O projeto adota boas práticas de design alinhadas com os princípios do SOLID:
+
+1. **SRP — Single Responsibility Principle (Princípio da Responsabilidade Única):**
+   * Cada componente do projeto possui uma única responsabilidade de negócio bem delimitada. 
+   * **Controllers** (ex: `EventsController`) gerenciam apenas o protocolo HTTP, cabeçalhos e rotas.
+   * **Services** (ex: `EventsService`) contêm apenas as regras de negócio e lógica de aplicação.
+   * **Models** (ex: `Event` model) representam apenas a estrutura e relacionamento das tabelas do banco.
+   * **DTOs** (ex: `CreateEventDto`) servem apenas para transporte e validação estrutural dos dados de entrada.
+
+2. **DIP — Dependency Inversion Principle (Princípio da Inversão de Dependência):**
+   * As classes de alto nível não dependem de classes de baixo nível; ambas dependem de abstrações.
+   * Em `EventsService`, a conexão com o banco de dados é invertida por meio de injeção de dependência via construtor (`@InjectModel(Event) private readonly eventModel: typeof Event`). Isso desacopla o serviço da implementação real do Sequelize, permitindo mockar facilmente o banco e rodar testes unitários isolados com sucesso.
+
 ## Fluxograma Estrutural
 
 ![Fluxograma](docs/FluxogramaEstruturalConvive.drawio.png)

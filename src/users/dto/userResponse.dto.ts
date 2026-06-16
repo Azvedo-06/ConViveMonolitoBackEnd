@@ -10,5 +10,7 @@ export class UserResponseDto {
   linkedin?: string;
   instagram?: string;
   youtube?: string;
+  cnpj?: string;
+  cep?: string;
   createdAt!: Date;
 }
