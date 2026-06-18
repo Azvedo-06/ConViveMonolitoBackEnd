@@ -75,4 +75,21 @@ export class CitiesService {
     await city.destroy();
     return { message: 'Cidade excluída com sucesso.' };
   }
+
+  async uploadImage(id: string, filename: string): Promise<any> {
+    const city = await this.cityModel.findByPk(id);
+    if (!city) {
+      throw new NotFoundException('Cidade não encontrada.');
+    }
+
+    city.imageUrl = `/uploads/${filename}`;
+    city.imageFallbackUrl = `/uploads/${filename}`;
+    await city.save();
+
+    return {
+      message: 'Imagem enviada com sucesso',
+      imageUrl: city.imageUrl,
+    };
+  }
 }
+
