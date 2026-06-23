@@ -10,10 +10,11 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import { EventsModule } from './events/events.module';
 import { CitiesModule } from './cities/cities.module';
+import { PaymentsModule } from './payments/payments.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // Faze o módulo de configuração estar disponível globalmente
+      isGlobal: true,
     }),
     SequelizeModule.forRootAsync({
       inject: [ConfigService],
@@ -24,8 +25,8 @@ import { CitiesModule } from './cities/cities.module';
         username: config.get<string>('DB_USER'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_NAME'),
-        autoLoadModels: true, // Carrega os modelos automaticamente
-        synchronize: false, // SEMPRE false com migrations
+        autoLoadModels: true,
+        synchronize: false,
       }),
     }),
     AuthModule,
@@ -33,12 +34,13 @@ import { CitiesModule } from './cities/cities.module';
     UsersModule,
     EventsModule,
     CitiesModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [
     {
-      provide: APP_GUARD, // Aplica o guard globalmente
-      useClass: JwtAuthGuard, // Usa o JwtAuthGuard para autenticação
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
     },
     AppService,
   ],

@@ -23,7 +23,6 @@ export class AuthService {
     if (!passwordMatch) {
       throw new UnauthorizedException('Usuário ou senha inválidos');
     }
-    // Gerar o token JWT
     const payload = {
       sub: user.id,
       role: user.role,

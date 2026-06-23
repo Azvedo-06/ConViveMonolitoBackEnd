@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 export interface CityAttributes {
-  id: string; // slugified name, e.g. 'campo-mourao'
+  id: string;
   label: string;
   theme: string;
   accentClassName?: string;

@@ -16,13 +16,13 @@ export class UsersController {
     @Post()
     async createUser(@Body() dto: CreateUserDto) {
         const user = await this.usersService.create(dto);
-        return toUserResponse(user); // Mapear o usuário criado para UserResponseDto
+        return toUserResponse(user);
     }
 
     @Get('me')
     async getMe(@Req() req) {
         const user = await this.usersService.findById(req.user.userId);
-        return toUserResponse(user); // Mapear o usuário para UserResponseDto
+        return toUserResponse(user);
     } 
 
     @Patch('me')
@@ -33,9 +33,9 @@ export class UsersController {
 
     @Get()
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.ADMIN) // Apenas administradores podem acessar este endpoint
+    @Roles(Role.ADMIN)
     async getAllUsers() {
         const users = await this.usersService.findAll();
-        return users.map(toUserResponse); // Mapear cada usuário para UserResponseDto .map é uma função de array do JavaScript que aplica a função toUserResponse a cada elemento do array users
+        return users.map(toUserResponse);
     }
 }

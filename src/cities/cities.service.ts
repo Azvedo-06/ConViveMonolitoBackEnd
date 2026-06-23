@@ -18,13 +18,12 @@ export class CitiesService {
   }
 
   async create(dto: CreateCityDto) {
-    // Generate id slug from label (e.g. "Campo Mourão" -> "campo-mourao")
     const id = dto.label
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // remove accents
-      .replace(/[^a-z0-9]+/g, '-') // replace spaces/specials with dash
-      .replace(/(^-|-$)+/g, ''); // trim dashes
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
 
     const existing = await this.cityModel.findByPk(id);
     if (existing) {
@@ -38,10 +37,10 @@ export class CitiesService {
       id,
       label: dto.label,
       theme: id,
-      accentClassName: '', // left blank since we are using inline style color variables now
+      accentClassName: '',
       imageUrl,
       imageFallbackUrl,
-      colorPrimary: dto.colorPrimary || '46 125 50', // green default
+      colorPrimary: dto.colorPrimary || '46 125 50',
       colorSecondary: dto.colorSecondary || '102 187 106',
       description: dto.description || '',
       tags: dto.tags || ['cultura', 'eventos'],

@@ -56,7 +56,6 @@ export class EventsService {
 
     this.logger.log(`Evento criado: ${event.title} (ID: ${event.id})`);
     
-    // Log utilizando lock concorrente (Exigência da rubrica)
     await LockedLogger.log(`Novo evento criado: "${event.title}" por Usuário ID ${userId}`);
 
     return {

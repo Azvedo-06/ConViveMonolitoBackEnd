@@ -13,8 +13,9 @@ export class CreateUserDto {
   @IsString()
   name!: string;
 
+  @IsOptional()
   @Validate(CpfValidator)
-  cpf!: string;
+  cpf?: string;
 
   @IsOptional()
   @Validate(CnpjValidator)

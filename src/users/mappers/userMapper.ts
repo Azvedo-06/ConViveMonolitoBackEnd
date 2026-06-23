@@ -1,6 +1,5 @@
 import { UserResponseDto } from "../dto/userResponse.dto";
 import { User } from "../entity/user.model";
-// Mapper serve para converter a entidade User para o DTO UserResponseDto
 export function toUserResponse(user: User): UserResponseDto {
   return {
     id: user.id.toString(),

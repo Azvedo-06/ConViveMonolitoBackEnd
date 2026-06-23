@@ -14,7 +14,6 @@ import { Sequelize } from 'sequelize-typescript';
 describe('Events (e2e)', () => {
   let app: INestApplication<App>;
 
-  // Espionar e simular comportamento dos guards globais
   jest.spyOn(JwtAuthGuard.prototype, 'canActivate').mockImplementation((context: any) => {
     const req = context.switchToHttp().getRequest();
     req.user = { userId: 1, role: 'ORGANIZER' };
@@ -66,14 +65,12 @@ describe('Events (e2e)', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
-      // Sobrescrever os modelos Sequelize para não bater no banco real
       .overrideProvider(getModelToken(Event))
       .useValue(mockEventModel)
       .overrideProvider(getModelToken(EventParticipant))
       .useValue(mockParticipantModel)
       .overrideProvider(getModelToken(ChatMessage))
       .useValue(mockChatMessageModel)
-      // Mockar o Sequelize em si para fechar de forma limpa
       .overrideProvider(Sequelize)
       .useValue({
         transaction: jest.fn(),

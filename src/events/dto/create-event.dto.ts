@@ -41,4 +41,8 @@ export class CreateEventDto {
   @IsNumber()
   @IsPositive()
   maxParticipants?: number;
+
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
 }

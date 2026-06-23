@@ -6,7 +6,7 @@ import { Event } from '../../events/entity/event.model';
 export interface UserAttributes {
   id: number;
   name: string;
-  cpf: string;
+  cpf?: string;
   phone: string;
   email: string;
   password: string;
@@ -41,10 +41,10 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
     unique: true,
   })
-  declare cpf: string;
+  declare cpf?: string;
 
   @Column({
     type: DataType.STRING,

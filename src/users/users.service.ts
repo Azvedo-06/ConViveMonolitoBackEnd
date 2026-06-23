@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from './dto/createUser.dto';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../auth/enums/role.enum';
@@ -9,19 +9,27 @@ export class UsersService {
   constructor(@InjectModel(User) private readonly userModel: typeof User) {} 
      
   async create(dto: CreateUserDto) {
-    const existingCpf = await this.userModel.findOne({ where: { cpf: dto.cpf } });
-    if (existingCpf) {
-      throw new ConflictException('CPF já cadastrado');
+    if (!dto.cpf && !dto.cnpj) {
+      throw new BadRequestException('Por favor, informe pelo menos o CPF ou o CNPJ.');
+    }
+
+    if (dto.cpf) {
+      const existingCpf = await this.userModel.findOne({ where: { cpf: dto.cpf } });
+      if (existingCpf) {
+        throw new ConflictException('CPF já cadastrado');
+      }
+    }
+
+    if (dto.cnpj) {
+      const existingCnpj = await this.userModel.findOne({ where: { cnpj: dto.cnpj } });
+      if (existingCnpj) {
+        throw new ConflictException('CNPJ já cadastrado');
+      }
     }
 
     const existingEmail = await this.userModel.findOne({ where: { email: dto.email } });
     if (existingEmail) {
       throw new ConflictException('E-mail já cadastrado');
-    }
-
-    const existingPhone = await this.userModel.findOne({ where: { phone: dto.phone } });
-    if (existingPhone) {
-      throw new ConflictException('Telefone já cadastrado');
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
@@ -62,13 +70,6 @@ export class UsersService {
       const existingEmail = await this.userModel.findOne({ where: { email: dto.email } });
       if (existingEmail) {
         throw new ConflictException('E-mail já cadastrado');
-      }
-    }
-
-    if (dto.phone && dto.phone !== user.phone) {
-      const existingPhone = await this.userModel.findOne({ where: { phone: dto.phone } });
-      if (existingPhone) {
-        throw new ConflictException('Telefone já cadastrado');
       }
     }
 

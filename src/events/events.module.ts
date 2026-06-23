@@ -11,5 +11,6 @@ import { EventsGateway } from './events.gateway';
   imports: [SequelizeModule.forFeature([Event, EventParticipant, ChatMessage])],
   controllers: [EventsController],
   providers: [EventsService, EventsGateway],
+  exports: [EventsService],
 })
 export class EventsModule {}
