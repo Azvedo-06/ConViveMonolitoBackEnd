@@ -10,6 +10,7 @@ import {
 
 import { User } from '../../users/entity/user.model';
 import { EventType } from '../enums/event-type.enum';
+import { City } from '../../cities/entity/city.model';
 
 import type {
   CreationOptional,
@@ -89,12 +90,16 @@ export class Event extends Model<
   })
   declare category: CreationOptional<string>;
 
+  @ForeignKey(() => City)
   @Column({
     type: DataType.STRING,
     allowNull: false,
     defaultValue: 'campo-mourao',
   })
   declare city: CreationOptional<string>;
+
+  @BelongsTo(() => City, 'city')
+  cityDetails?: City;
 
   @BelongsToMany(() => User, () => EventParticipant)
   declare participants?: User[];
@@ -104,4 +109,17 @@ export class Event extends Model<
     allowNull: true,
   })
   declare imageUrl: CreationOptional<string>;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    defaultValue: 'NONE',
+  })
+  declare exposureLevel: CreationOptional<'NONE' | 'CITY' | 'STATE' | 'COUNTRY'>;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  declare promotionUntil: CreationOptional<Date | null>;
 }

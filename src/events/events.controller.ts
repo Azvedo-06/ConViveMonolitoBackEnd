@@ -81,6 +81,12 @@ export class EventsController {
     return this.eventsService.findAll(city);
   }
 
+  @Public()
+  @Get('promoted')
+  findPromoted(@Query('state') state?: string, @Query('city') city?: string) {
+    return this.eventsService.findPromoted(state, city);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('my-events')
   findMyEvents(@Req() req) {
@@ -128,5 +134,15 @@ export class EventsController {
     );
     this.eventsGateway.server.to(`event_${id}`).emit('newMessage', message);
     return message;
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @Post(':id/promote')
+  async promoteEventDirectly(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('exposureLevel') exposureLevel: 'CITY' | 'STATE' | 'COUNTRY',
+  ) {
+    return this.eventsService.promoteEvent(id, exposureLevel);
   }
 }

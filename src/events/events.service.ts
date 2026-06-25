@@ -14,6 +14,9 @@ import { ChatMessage } from './entity/chat-message.model';
 import { User } from '../users/entity/user.model';
 import { Role } from '../auth/enums/role.enum';
 import { LockedLogger } from '../common/locked-logger';
+import { Op } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
+import { City } from '../cities/entity/city.model';
 
 @Injectable()
 export class EventsService {
@@ -88,6 +91,15 @@ export class EventsService {
             'youtube',
           ],
         },
+      ],
+      order: [
+        [
+          Sequelize.literal(
+            `CASE WHEN exposure_level = 'CITY' AND promotion_until > NOW() THEN 0 ELSE 1 END`
+          ),
+          'ASC',
+        ],
+        ['date', 'ASC'],
       ],
     });
   }
@@ -388,6 +400,75 @@ export class EventsService {
         },
       ],
     });
+  }
+
+  async findPromoted(state?: string, city?: string) {
+    const now = new Date();
+    const orClauses: any[] = [
+      {
+        exposureLevel: 'COUNTRY',
+      },
+    ];
+
+    if (state) {
+      orClauses.push({
+        exposureLevel: 'STATE',
+        '$cityDetails.state$': state,
+      });
+    }
+
+    if (city) {
+      orClauses.push({
+        exposureLevel: 'CITY',
+        city: city,
+      });
+    }
+
+    return this.eventModel.findAll({
+      where: {
+        promotionUntil: {
+          [Op.gt]: now,
+        },
+        [Op.or]: orClauses,
+      },
+      include: [
+        {
+          model: City,
+          as: 'cityDetails',
+          attributes: ['id', 'label', 'state'],
+        },
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
+      order: [['date', 'ASC']],
+    });
+  }
+
+  async promoteEvent(id: number, exposureLevel: 'CITY' | 'STATE' | 'COUNTRY') {
+    const event = await this.eventModel.findByPk(id);
+    if (!event) {
+      throw new NotFoundException('Evento não encontrado');
+    }
+
+    const promotionUntil = new Date();
+    promotionUntil.setDate(promotionUntil.getDate() + 30);
+
+    await event.update({
+      exposureLevel,
+      promotionUntil,
+    });
+
+    this.logger.log(
+      `Evento ${event.title} (ID: ${event.id}) promovido para nível ${exposureLevel} até ${promotionUntil.toISOString()}`,
+    );
+
+    return {
+      message: 'Evento promovido com sucesso',
+      data: event,
+    };
   }
 }
 
