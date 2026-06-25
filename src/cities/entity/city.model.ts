@@ -12,6 +12,9 @@ export interface CityAttributes {
   description?: string;
   tags?: string[];
   spotlight?: string;
+  latitude?: number;
+  longitude?: number;
+  state?: string;
 }
 
 export interface CityCreationAttributes extends CityAttributes {}
@@ -88,4 +91,30 @@ export class City extends Model<CityAttributes, CityCreationAttributes> {
     allowNull: true,
   })
   declare spotlight?: string;
+
+  @Column({
+    type: DataType.DECIMAL(10, 8),
+    allowNull: true,
+    get() {
+      const val = this.getDataValue('latitude');
+      return val === null || val === undefined ? undefined : Number(val);
+    },
+  })
+  declare latitude?: number;
+
+  @Column({
+    type: DataType.DECIMAL(11, 8),
+    allowNull: true,
+    get() {
+      const val = this.getDataValue('longitude');
+      return val === null || val === undefined ? undefined : Number(val);
+    },
+  })
+  declare longitude?: number;
+
+  @Column({
+    type: DataType.STRING(2),
+    allowNull: true,
+  })
+  declare state?: string;
 }

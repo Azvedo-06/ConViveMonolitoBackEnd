@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsArray } from 'class-validator';
+import { IsOptional, IsString, IsArray, IsNumber, Length } from 'class-validator';
 
 export class UpdateCityDto {
   @IsOptional()
@@ -33,4 +33,17 @@ export class UpdateCityDto {
   @IsOptional()
   @IsString()
   spotlight?: string;
+
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
+
+  @IsOptional()
+  @IsString()
+  @Length(2, 2)
+  state?: string;
 }

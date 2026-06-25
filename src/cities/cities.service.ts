@@ -45,6 +45,9 @@ export class CitiesService {
       description: dto.description || '',
       tags: dto.tags || ['cultura', 'eventos'],
       spotlight: dto.spotlight || `Cidade de ${dto.label}`,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      state: dto.state,
     });
   }
 
@@ -62,6 +65,9 @@ export class CitiesService {
     if (dto.description !== undefined) city.description = dto.description;
     if (dto.tags !== undefined) city.tags = dto.tags;
     if (dto.spotlight !== undefined) city.spotlight = dto.spotlight;
+    if (dto.latitude !== undefined) city.latitude = dto.latitude;
+    if (dto.longitude !== undefined) city.longitude = dto.longitude;
+    if (dto.state !== undefined) city.state = dto.state;
 
     return city.save();
   }
