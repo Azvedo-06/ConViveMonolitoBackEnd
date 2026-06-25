@@ -17,6 +17,17 @@ export class PaymentsController {
     return this.paymentsService.createCheckoutSession(eventId, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('checkout-promotion')
+  async createPromotionCheckoutSession(
+    @Body('eventId', ParseIntPipe) eventId: number,
+    @Body('exposureLevel') exposureLevel: 'CITY' | 'STATE' | 'COUNTRY',
+    @Req() req: any,
+  ) {
+    const userId = req.user.userId;
+    return this.paymentsService.createPromotionCheckoutSession(eventId, exposureLevel, userId);
+  }
+
   @Public()
   @Post('webhook')
   @HttpCode(HttpStatus.OK)

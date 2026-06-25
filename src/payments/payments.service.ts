@@ -64,6 +64,72 @@ export class PaymentsService {
     }
   }
 
+  async createPromotionCheckoutSession(
+    eventId: number,
+    exposureLevel: 'CITY' | 'STATE' | 'COUNTRY',
+    userId: number,
+  ) {
+    try {
+      const event = await this.eventsService.findOne(eventId);
+      if (!event) {
+        throw new BadRequestException('Evento não encontrado');
+      }
+
+      if (event.createdBy !== userId) {
+        throw new BadRequestException('Apenas o criador do evento pode promovê-lo.');
+      }
+
+      let price = 0;
+      let name = '';
+      if (exposureLevel === 'CITY') {
+        price = 20.0;
+        name = `Destaque Municipal: ${event.title}`;
+      } else if (exposureLevel === 'STATE') {
+        price = 50.0;
+        name = `Destaque Regional (Estado): ${event.title}`;
+      } else if (exposureLevel === 'COUNTRY') {
+        price = 100.0;
+        name = `Destaque Nacional (País): ${event.title}`;
+      } else {
+        throw new BadRequestException('Nível de destaque inválido');
+      }
+
+      const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+
+      const session = await this.stripe.checkout.sessions.create({
+        line_items: [
+          {
+            price_data: {
+              currency: 'brl',
+              product_data: {
+                name,
+                description: `Promoção nível ${exposureLevel} para o evento: ${event.title}`,
+              },
+              unit_amount: Math.round(price * 100), // Em centavos
+            },
+            quantity: 1,
+          },
+        ],
+        mode: 'payment',
+        success_url: `${frontendUrl}/${event.city}?payment=success`,
+        cancel_url: `${frontendUrl}/${event.city}?payment=cancel`,
+        metadata: {
+          type: 'promotion',
+          eventId: eventId.toString(),
+          exposureLevel,
+          userId: userId.toString(),
+        },
+      });
+
+      return { url: session.url };
+    } catch (error: any) {
+      console.error('Error creating Stripe Promotion Checkout Session:', error);
+      throw new InternalServerErrorException(
+        error.message || 'Erro ao criar sessão de pagamento de promoção.',
+      );
+    }
+  }
+
   async handleWebhook(signature: string, rawBody: Buffer) {
     const webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
     if (!webhookSecret) {
@@ -85,15 +151,27 @@ export class PaymentsService {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-      const { eventId, userId } = session.metadata || {};
+      const { type, eventId, exposureLevel, userId } = session.metadata || {};
 
-      if (eventId && userId) {
-        console.log(`Payment confirmed! Registering user ${userId} to event ${eventId}`);
-        try {
-          await this.eventsService.joinEvent(Number(eventId), Number(userId));
-        } catch (error) {
-          console.error(`Failed to register user to event after payment:`, error);
-          throw new InternalServerErrorException('Falha ao inscrever usuário no evento pós-pagamento');
+      if (type === 'promotion') {
+        if (eventId && exposureLevel) {
+          console.log(`Promotion confirmed! Promoting event ${eventId} to level ${exposureLevel}`);
+          try {
+            await this.eventsService.promoteEvent(Number(eventId), exposureLevel as any);
+          } catch (error) {
+            console.error(`Failed to promote event after payment:`, error);
+            throw new InternalServerErrorException('Falha ao promover evento pós-pagamento');
+          }
+        }
+      } else {
+        if (eventId && userId) {
+          console.log(`Payment confirmed! Registering user ${userId} to event ${eventId}`);
+          try {
+            await this.eventsService.joinEvent(Number(eventId), Number(userId));
+          } catch (error) {
+            console.error(`Failed to register user to event after payment:`, error);
+            throw new InternalServerErrorException('Falha ao inscrever usuário no evento pós-pagamento');
+          }
         }
       }
     }
